@@ -1,0 +1,48 @@
+# Build and simulation files
+*.vvp
+*.vcd
+*.out
+*.log
+*.wave
+
+# Simulation work directories
+sim/
+work/
+
+# GTKWave and other viewer files
+*.gtkw
+*.lxt
+*.fst
+
+# Temporary files
+*~
+*.swp
+*.bak
+
+# Quartus, Vivado, or other FPGA tools
+db/
+incremental_db/
+output_files/
+*.rpt
+*.jou
+*.str
+*.cache
+*.runs
+*.webinfo
+*.hw
+*.ip_user_files
+*.sim
+*.log
+*.wdb
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore generated testbench results
+tests/*.vvp
+tests/*.vcd
