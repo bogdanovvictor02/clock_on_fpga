@@ -50,8 +50,8 @@ module display
     // Enable dot
     assign o_Segments[7]    = i_Enable_Dot & i_Select[0] & ~i_Select[1];
 
-    // Assign output segments
-    assign o_Segments[6:0]  = r_Segments[6:0];
+    // Assign output segments - only show segments if any digit is enabled
+    assign o_Segments[6:0]  = (|i_Enable_Digits) ? r_Segments[6:0] : 7'b0000000;
 
     // Decoder 2 to 4
     always @(*) begin
