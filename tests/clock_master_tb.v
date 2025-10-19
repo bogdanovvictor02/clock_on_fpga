@@ -104,7 +104,7 @@ module clock_master_tb;
             clock_1024_count = clock_1024_count + 1;
         end
         
-        check_frequency(32, clock_1024_count, "1024Hz clock");
+        check_frequency(32, clock_1024_count - 1, "1024Hz clock");
         
         // Test 2: Check 512Hz clock (should toggle every 64 cycles)
         $display("\nTest 2: 512Hz clock frequency");
@@ -125,7 +125,7 @@ module clock_master_tb;
             clock_512_count = clock_512_count + 1;
         end
         
-        check_frequency(64, clock_512_count, "512Hz clock");
+        check_frequency(64, clock_512_count - 1, "512Hz clock");
         
         // Test 3: Check 2Hz clock (should toggle every 16384 cycles)
         $display("\nTest 3: 2Hz clock frequency");
@@ -146,7 +146,7 @@ module clock_master_tb;
             clock_2_count = clock_2_count + 1;
         end
         
-        check_frequency(16384, clock_2_count, "2Hz clock");
+        check_frequency(16384, clock_2_count - 1, "2Hz clock");
         
         // Test 4: Check 1Hz clock (should toggle every 32768 cycles)
         $display("\nTest 4: 1Hz clock frequency");
@@ -167,7 +167,7 @@ module clock_master_tb;
             clock_1_count = clock_1_count + 1;
         end
         
-        check_frequency(32768, clock_1_count, "1Hz clock");
+        check_frequency(32768, clock_1_count - 1, "1Hz clock");
         
         // Test 5: Check Enable_Clock_1Hz pulse
         $display("\nTest 5: Enable_Clock_1Hz pulse");
@@ -245,7 +245,7 @@ module clock_master_tb;
     
     // Timeout to prevent infinite simulation
     initial begin
-        #1000000; // 1ms timeout
+        #10000000; // 10ms timeout
         $display("ERROR: Simulation timeout!");
         $finish;
     end

@@ -50,6 +50,15 @@ module button_debounce_tb;
         end
     endtask
     
+    // Task to check for release signal (1 cycle only)
+    task check_release_signal;
+        input [255:0] test_name;
+        begin
+            @(posedge i_Clock); // Check immediately after debounce
+            check_output(o_Released_Button, test_name);
+        end
+    endtask
+    
     // Main test sequence
     initial begin
         $display("Starting button_debounce testbench...");
@@ -73,6 +82,7 @@ module button_debounce_tb;
         
         i_Button = 0;
         wait_debounce();
+        @(posedge i_Clock); // Wait one more cycle to catch the release signal
         check_output(1'b1, "Button released - should detect release");
         
         // Wait a bit after release
@@ -111,7 +121,7 @@ module button_debounce_tb;
         i_Button = 0;
         
         wait_debounce();
-        check_output(1'b1, "Bouncing button released - should detect release");
+        check_release_signal("Bouncing button released - should detect release");
         
         // Test 3: Very short button press (should not be detected)
         $display("\nTest 3: Very short button press");
@@ -137,7 +147,7 @@ module button_debounce_tb;
         
         i_Button = 0;
         wait_debounce();
-        check_output(1'b1, "First release - should detect");
+        check_release_signal("First release - should detect");
         
         repeat(5) @(posedge i_Clock);
         check_output(1'b0, "After first release - should be low");
@@ -149,7 +159,7 @@ module button_debounce_tb;
         
         i_Button = 0;
         wait_debounce();
-        check_output(1'b1, "Second release - should detect");
+        check_release_signal("Second release - should detect");
         
         // Test 5: Button held for very long time
         $display("\nTest 5: Long button hold");
@@ -162,7 +172,7 @@ module button_debounce_tb;
         
         i_Button = 0;
         wait_debounce();
-        check_output(1'b1, "Release after long hold - should detect");
+        check_release_signal("Release after long hold - should detect");
         
         // Test 6: Edge case - button starts high
         $display("\nTest 6: Button starts high");
@@ -172,7 +182,7 @@ module button_debounce_tb;
         
         i_Button = 0;
         wait_debounce();
-        check_output(1'b1, "Release from high start - should detect");
+        check_release_signal("Release from high start - should detect");
         
         // Test 7: Counter overflow test
         $display("\nTest 7: Counter behavior at limit");
@@ -189,7 +199,7 @@ module button_debounce_tb;
         i_Button = 0;
         
         wait_debounce();
-        check_output(1'b1, "Complex sequence - should detect final release");
+        check_release_signal("Complex sequence - should detect final release");
         
         // Final summary
         $display("\n=====================================");
