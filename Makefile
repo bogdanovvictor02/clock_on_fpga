@@ -36,12 +36,39 @@ all: test-all
 
 # Run all tests
 test-all: $(VVP_FILES)
+	@echo "=========================================="
 	@echo "Running all tests..."
-	@for vvp in $(VVP_FILES); do \
+	@echo "=========================================="
+	@echo ""
+	@total_tests=0; \
+	total_errors=0; \
+	failed_tests=""; \
+	for vvp in $(VVP_FILES); do \
 		echo "Running $$vvp..."; \
-		vvp $$vvp; \
+		echo "------------------------------------------"; \
+		output=$$(COLUMNS=300 vvp $$vvp 2>&1); \
+		echo "$$output"; \
 		echo ""; \
-	done
+		test_count=$$(echo "$$output" | grep -E "(Total tests|Tests run|Test count): [0-9]*" | grep -o "[0-9]*" | tail -1 || echo "0"); \
+		error_count=$$(echo "$$output" | grep -E "(Errors|Error count): [0-9]*" | grep -o "[0-9]*" | tail -1 || echo "0"); \
+		if [ "$$error_count" -gt 0 ] || echo "$$output" | grep -q "ERROR:"; then \
+			failed_tests="$$failed_tests $$(basename $$vvp .vvp)"; \
+		fi; \
+		total_tests=$$((total_tests + test_count)); \
+		total_errors=$$((total_errors + error_count)); \
+	done; \
+	echo "=========================================="; \
+	echo "FINAL TEST SUMMARY"; \
+	echo "=========================================="; \
+	echo "Total tests run: $$total_tests"; \
+	echo "Total errors found: $$total_errors"; \
+	if [ "$$total_errors" -eq 0 ]; then \
+		echo "Status: ALL TESTS PASSED! ✅"; \
+	else \
+		echo "Status: SOME TESTS FAILED! ❌"; \
+		echo "Failed test files:$$failed_tests"; \
+	fi; \
+	echo "=========================================="
 
 # Individual test targets
 test-button: $(TEST_DIR)/button_debounce_tb.vvp
@@ -65,8 +92,31 @@ test-counters: $(TEST_DIR)/clock_counters_tb.vvp
 test-top: $(TEST_DIR)/clock_top_tb.vvp
 	vvp $(TEST_DIR)/clock_top_tb.vvp
 
+test-top-verbose: $(TEST_DIR)/clock_top_tb.vvp
+	@echo "Running clock_top test with monitoring..."
+	@echo "=========================================="
+	@COLUMNS=200 vvp $(TEST_DIR)/clock_top_tb.vvp +monitor
+
 test-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp
+
+test-integration-verbose: $(TEST_DIR)/integration_test.vvp
+	@echo "Running integration test with monitoring (wide output)..."
+	@echo "Terminal width: $$(tput cols) columns"
+	@echo "=========================================="
+	@COLUMNS=200 vvp $(TEST_DIR)/integration_test.vvp +monitor
+
+test-integration-wide: $(TEST_DIR)/integration_test.vvp
+	@echo "Running integration test with very wide monitoring..."
+	@echo "=========================================="
+	@COLUMNS=300 vvp $(TEST_DIR)/integration_test.vvp +monitor | cat
+
+test-integration-custom: $(TEST_DIR)/integration_test.vvp
+	@echo "Running integration test with custom width monitoring..."
+	@echo "Usage: make test-integration-custom WIDTH=400"
+	@echo "Default width: 200 columns"
+	@echo "=========================================="
+	@COLUMNS=$${WIDTH:-200} vvp $(TEST_DIR)/integration_test.vvp +monitor | cat
 
 # Compile all testbenches
 $(VVP_FILES): %.vvp: %.v $(RTL_SOURCES)
@@ -113,6 +163,41 @@ wave-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp +vcd
 	$(VIEWER) $(TEST_DIR)/integration_test.vcd &
 
+# Detailed error analysis
+test-errors: $(VVP_FILES)
+	@echo "=========================================="
+	@echo "DETAILED ERROR ANALYSIS"
+	@echo "=========================================="
+	@for vvp in $(VVP_FILES); do \
+		echo "Analyzing $$vvp..."; \
+		echo "------------------------------------------"; \
+		output=$$(COLUMNS=300 vvp $$vvp 2>&1); \
+		error_count=$$(echo "$$output" | grep -E "(Errors|Error count): [0-9]*" | grep -o "[0-9]*" | tail -1 || echo "0"); \
+		if [ "$$error_count" -gt 0 ]; then \
+			echo "❌ FAILED - $$error_count errors found:"; \
+			echo "$$output" | grep "ERROR:" | sed 's/.*ERROR: //'; \
+		else \
+			echo "✅ PASSED - No errors found"; \
+		fi; \
+		echo ""; \
+	done
+
+# Show detailed errors for a specific test
+show-errors:
+	@echo "Usage: make show-errors TEST=<test_name> [DETAILED=1]"
+	@echo "Available tests: button_debounce_tb, counter_tb, clock_master_tb, display_tb, control_unit_tb, clock_counters_tb, clock_top_tb, integration_test"
+	@if [ -z "$(TEST)" ]; then \
+		echo "Please specify TEST parameter"; \
+		exit 1; \
+	fi
+	@echo "Showing errors for $(TEST)..."
+	@echo "=========================================="
+	@if [ "$(DETAILED)" = "1" ]; then \
+		COLUMNS=300 vvp tests/$(TEST).vvp 2>&1 | grep -A 2 -B 1 "ERROR:" | fold -w 200 -s; \
+	else \
+		COLUMNS=300 vvp tests/$(TEST).vvp 2>&1 | grep "ERROR:" | sed 's/.*ERROR: //'; \
+	fi
+
 # Clean generated files
 clean:
 	rm -f $(VVP_FILES) $(VCD_FILES)
@@ -122,7 +207,8 @@ help:
 	@echo "Available targets:"
 	@echo ""
 	@echo "Test targets:"
-	@echo "  test-all          - Run all tests"
+	@echo "  test-all          - Run all tests with summary"
+	@echo "  test-errors       - Detailed error analysis"
 	@echo "  test-button       - Run button_debounce test"
 	@echo "  test-counter      - Run counter test"
 	@echo "  test-clock-master - Run clock_master test"
@@ -130,7 +216,12 @@ help:
 	@echo "  test-control      - Run control_unit test"
 	@echo "  test-counters     - Run clock_counters test"
 	@echo "  test-top          - Run clock_top test"
+	@echo "  test-top-verbose  - Run clock_top test with monitoring"
 	@echo "  test-integration  - Run integration test"
+	@echo "  test-integration-verbose - Run integration test with monitoring (200 cols)"
+	@echo "  test-integration-wide - Run integration test with wide monitoring (300 cols)"
+	@echo "  test-integration-custom - Run integration test with custom width (WIDTH=400)"
+	@echo "  show-errors       - Show errors for specific test (DETAILED=1 for full details)"
 	@echo ""
 	@echo "Waveform targets:"
 	@echo "  wave-all          - Run all tests with VCD generation"
@@ -147,4 +238,4 @@ help:
 	@echo "  clean             - Remove generated files"
 	@echo "  help              - Show this help message"
 
-.PHONY: all test-all test-button test-counter test-clock-master test-display test-control test-counters test-top test-integration wave-all wave-button wave-counter wave-clock-master wave-display wave-control wave-counters wave-top wave-integration clean help
+.PHONY: all test-all test-errors test-button test-counter test-clock-master test-display test-control test-counters test-top test-top-verbose test-integration test-integration-verbose test-integration-wide test-integration-custom show-errors wave-all wave-button wave-counter wave-clock-master wave-display wave-control wave-counters wave-top wave-integration clean help

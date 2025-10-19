@@ -52,7 +52,7 @@ module clock_top_tb;
         input [3:0] expected_digit;
         input [3:0] expected_digits_enable;
         input expected_dot;
-        input [255:0] test_name;
+        input [400:0] test_name;
         begin
             test_count = test_count + 1;
             

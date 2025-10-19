@@ -47,7 +47,7 @@ module control_unit_tb;
         input [2:0] expected_enable_count;
         input [1:0] expected_display_digits;
         input expected_display_dot;
-        input [255:0] test_name;
+        input [400:0] test_name;
         begin
             test_count = test_count + 1;
             if (o_Counters_Reset !== expected_reset || 
