@@ -92,31 +92,8 @@ test-counters: $(TEST_DIR)/clock_counters_tb.vvp
 test-top: $(TEST_DIR)/clock_top_tb.vvp
 	vvp $(TEST_DIR)/clock_top_tb.vvp
 
-test-top-verbose: $(TEST_DIR)/clock_top_tb.vvp
-	@echo "Running clock_top test with monitoring..."
-	@echo "=========================================="
-	@COLUMNS=200 vvp $(TEST_DIR)/clock_top_tb.vvp +monitor
-
 test-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp
-
-test-integration-verbose: $(TEST_DIR)/integration_test.vvp
-	@echo "Running integration test with monitoring (wide output)..."
-	@echo "Terminal width: $$(tput cols) columns"
-	@echo "=========================================="
-	@COLUMNS=200 vvp $(TEST_DIR)/integration_test.vvp +monitor
-
-test-integration-wide: $(TEST_DIR)/integration_test.vvp
-	@echo "Running integration test with very wide monitoring..."
-	@echo "=========================================="
-	@COLUMNS=300 vvp $(TEST_DIR)/integration_test.vvp +monitor | cat
-
-test-integration-custom: $(TEST_DIR)/integration_test.vvp
-	@echo "Running integration test with custom width monitoring..."
-	@echo "Usage: make test-integration-custom WIDTH=400"
-	@echo "Default width: 200 columns"
-	@echo "=========================================="
-	@COLUMNS=$${WIDTH:-200} vvp $(TEST_DIR)/integration_test.vvp +monitor | cat
 
 # Compile all testbenches
 $(VVP_FILES): %.vvp: %.v $(RTL_SOURCES)
@@ -182,22 +159,6 @@ test-errors: $(VVP_FILES)
 		echo ""; \
 	done
 
-# Show detailed errors for a specific test
-show-errors:
-	@echo "Usage: make show-errors TEST=<test_name> [DETAILED=1]"
-	@echo "Available tests: button_debounce_tb, counter_tb, clock_master_tb, display_tb, control_unit_tb, clock_counters_tb, clock_top_tb, integration_test"
-	@if [ -z "$(TEST)" ]; then \
-		echo "Please specify TEST parameter"; \
-		exit 1; \
-	fi
-	@echo "Showing errors for $(TEST)..."
-	@echo "=========================================="
-	@if [ "$(DETAILED)" = "1" ]; then \
-		COLUMNS=300 vvp tests/$(TEST).vvp 2>&1 | grep -A 2 -B 1 "ERROR:" | fold -w 200 -s; \
-	else \
-		COLUMNS=300 vvp tests/$(TEST).vvp 2>&1 | grep "ERROR:" | sed 's/.*ERROR: //'; \
-	fi
-
 # Clean generated files
 clean:
 	rm -f $(VVP_FILES) $(VCD_FILES)
@@ -216,12 +177,7 @@ help:
 	@echo "  test-control      - Run control_unit test"
 	@echo "  test-counters     - Run clock_counters test"
 	@echo "  test-top          - Run clock_top test"
-	@echo "  test-top-verbose  - Run clock_top test with monitoring"
 	@echo "  test-integration  - Run integration test"
-	@echo "  test-integration-verbose - Run integration test with monitoring (200 cols)"
-	@echo "  test-integration-wide - Run integration test with wide monitoring (300 cols)"
-	@echo "  test-integration-custom - Run integration test with custom width (WIDTH=400)"
-	@echo "  show-errors       - Show errors for specific test (DETAILED=1 for full details)"
 	@echo ""
 	@echo "Waveform targets:"
 	@echo "  wave-all          - Run all tests with VCD generation"
@@ -238,4 +194,4 @@ help:
 	@echo "  clean             - Remove generated files"
 	@echo "  help              - Show this help message"
 
-.PHONY: all test-all test-errors test-button test-counter test-clock-master test-display test-control test-counters test-top test-top-verbose test-integration test-integration-verbose test-integration-wide test-integration-custom show-errors wave-all wave-button wave-counter wave-clock-master wave-display wave-control wave-counters wave-top wave-integration clean help
+.PHONY: all test-all test-errors test-button test-counter test-clock-master test-display test-control test-counters test-top test-integration wave-all wave-button wave-counter wave-clock-master wave-display wave-control wave-counters wave-top wave-integration clean help
