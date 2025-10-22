@@ -55,7 +55,10 @@ module control_unit
                 r_Display_Enable_Digits     = 2'b00;
                 r_Display_Enable_Dot        = 1'b0;
                 
-                r_Next_State = SET_MIN;
+                if (i_Switch)
+                    r_Next_State = RESET_SEC;
+                else
+                    r_Next_State = SET_MIN;
                 
             end
             SET_MIN: begin
@@ -83,9 +86,9 @@ module control_unit
                 r_Display_Enable_Dot        = 1'b0;
 
                 if (i_Switch)
-                    r_Next_State = IDLE;
-                else
                     r_Next_State = SET_HOUR;
+                else
+                    r_Next_State = IDLE;
                 
             end
         endcase
