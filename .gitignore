@@ -46,3 +46,21 @@ Thumbs.db
 # Ignore generated testbench results
 tests/*.vvp
 tests/*.vcd
+
+# Gowin IDE temporary files
+impl/
+*.gprj.user
+*.gprj.bak
+*.log
+*.rpt
+*.jou
+*.str
+*.cache
+*.runs
+*.webinfo
+*.hw
+*.ip_user_files
+*.sim
+*.wdb
+*.tmp
+*.temp

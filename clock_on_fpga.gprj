@@ -1,0 +1,16 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW5A-25A" pn="GW5A-LV25MG121NC1/I0">gw5a25a-002</Device>
+    <FileList>
+        <File path="rtl/button_debounce.v" type="file.verilog" enable="1"/>
+        <File path="rtl/clock_counters.v" type="file.verilog" enable="1"/>
+        <File path="rtl/clock_master.v" type="file.verilog" enable="1"/>
+        <File path="rtl/clock_top.v" type="file.verilog" enable="1"/>
+        <File path="rtl/control_unit.v" type="file.verilog" enable="1"/>
+        <File path="rtl/counter.v" type="file.verilog" enable="1"/>
+        <File path="rtl/display.v" type="file.verilog" enable="1"/>
+    </FileList>
+</Project>
