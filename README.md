@@ -17,7 +17,7 @@
 
 ```
 clock_on_fpga/
-├── rtl/                    # Исходный код RTL
+├── src/                    # Исходный код RTL
 │   ├── button_debounce.v   # Модуль debounce кнопок
 │   ├── counter.v           # Универсальный счетчик
 │   ├── clock_master.v      # Генератор тактовых сигналов

@@ -5,17 +5,17 @@ SIMULATOR = iverilog
 VIEWER = gtkwave
 
 # Directories
-RTL_DIR = rtl
+SRC_DIR = src
 TEST_DIR = tests
 
 # Source files
-RTL_SOURCES = $(RTL_DIR)/button_debounce.v \
-              $(RTL_DIR)/counter.v \
-              $(RTL_DIR)/clock_master.v \
-              $(RTL_DIR)/display.v \
-              $(RTL_DIR)/control_unit.v \
-              $(RTL_DIR)/clock_counters.v \
-              $(RTL_DIR)/clock_top.v
+SRC_SOURCES = $(SRC_DIR)/button_debounce.v \
+              $(SRC_DIR)/counter.v \
+              $(SRC_DIR)/clock_master.v \
+              $(SRC_DIR)/display.v \
+              $(SRC_DIR)/control_unit.v \
+              $(SRC_DIR)/clock_counters.v \
+              $(SRC_DIR)/clock_top.v
 
 # Testbench files
 TESTBENCHES_V = $(TEST_DIR)/button_debounce_tb.v \
@@ -102,12 +102,12 @@ test-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp
 
 # Compile Verilog testbenches
-$(VVP_FILES_V): %.vvp: %.v $(RTL_SOURCES)
-	$(SIMULATOR) -o $@ $< $(RTL_SOURCES)
+$(VVP_FILES_V): %.vvp: %.v $(SRC_SOURCES)
+	$(SIMULATOR) -o $@ $< $(SRC_SOURCES)
 
 # Compile SystemVerilog testbenches
-$(VVP_FILES_SV): %.vvp: %.sv $(RTL_SOURCES)
-	$(SIMULATOR) -g2012 -o $@ $< $(RTL_SOURCES)
+$(VVP_FILES_SV): %.vvp: %.sv $(SRC_SOURCES)
+	$(SIMULATOR) -g2012 -o $@ $< $(SRC_SOURCES)
 
 # Run simulation and generate VCD
 wave-all: $(VVP_FILES)
