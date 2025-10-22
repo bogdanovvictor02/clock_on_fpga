@@ -47,7 +47,7 @@ module control_unit_tb;
         input [2:0] expected_enable_count;
         input [1:0] expected_display_digits;
         input expected_display_dot;
-        input [400:0] test_name;
+        input string test_name;
         begin
             test_count = test_count + 1;
             if (o_Counters_Reset !== expected_reset || 
@@ -70,7 +70,7 @@ module control_unit_tb;
     // Task to wait for state change
     task wait_for_state_change;
         input [1:0] expected_state;
-        input [255:0] state_name;
+        input string state_name;
         begin
             // Wait for state to change (next clock edge)
             @(posedge i_Clock);

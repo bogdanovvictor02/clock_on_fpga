@@ -18,18 +18,24 @@ RTL_SOURCES = $(RTL_DIR)/button_debounce.v \
               $(RTL_DIR)/clock_top.v
 
 # Testbench files
-TESTBENCHES = $(TEST_DIR)/button_debounce_tb.v \
-              $(TEST_DIR)/counter_tb.v \
-              $(TEST_DIR)/clock_master_tb.v \
-              $(TEST_DIR)/display_tb.v \
-              $(TEST_DIR)/control_unit_tb.v \
-              $(TEST_DIR)/clock_counters_tb.v \
-              $(TEST_DIR)/clock_top_tb.v \
-              $(TEST_DIR)/integration_test.v
+TESTBENCHES_V = $(TEST_DIR)/button_debounce_tb.v \
+                $(TEST_DIR)/counter_tb.v \
+                $(TEST_DIR)/clock_master_tb.v \
+                $(TEST_DIR)/display_tb.v \
+                $(TEST_DIR)/clock_counters_tb.v \
+                $(TEST_DIR)/integration_test.v
+
+TESTBENCHES_SV = $(TEST_DIR)/control_unit_tb.sv \
+				 $(TEST_DIR)/clock_top_tb.sv
 
 # Output files
-VVP_FILES = $(TESTBENCHES:.v=.vvp)
-VCD_FILES = $(TESTBENCHES:.v=.vcd)
+VVP_FILES_V = $(TESTBENCHES_V:.v=.vvp)
+VVP_FILES_SV = $(TESTBENCHES_SV:.sv=.vvp)
+VVP_FILES = $(VVP_FILES_V) $(VVP_FILES_SV)
+
+VCD_FILES_V = $(TESTBENCHES_V:.v=.vcd)
+VCD_FILES_SV = $(TESTBENCHES_SV:.sv=.vcd)
+VCD_FILES = $(VCD_FILES_V) $(VCD_FILES_SV)
 
 # Default target
 all: test-all
@@ -95,9 +101,13 @@ test-top: $(TEST_DIR)/clock_top_tb.vvp
 test-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp
 
-# Compile all testbenches
-$(VVP_FILES): %.vvp: %.v $(RTL_SOURCES)
+# Compile Verilog testbenches
+$(VVP_FILES_V): %.vvp: %.v $(RTL_SOURCES)
 	$(SIMULATOR) -o $@ $< $(RTL_SOURCES)
+
+# Compile SystemVerilog testbenches
+$(VVP_FILES_SV): %.vvp: %.sv $(RTL_SOURCES)
+	$(SIMULATOR) -g2012 -o $@ $< $(RTL_SOURCES)
 
 # Run simulation and generate VCD
 wave-all: $(VVP_FILES)
