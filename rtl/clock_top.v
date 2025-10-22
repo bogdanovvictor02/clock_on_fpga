@@ -126,9 +126,9 @@ module clock_top
         .i_Enable_Digits                (w_Enable_Digits),
         .i_Enable_Dot                   (w_Enable_Dot),
 
-        .i_Data_Dig1                    (w_Tens_Hour),
+        .i_Data_Dig1                    ({2'b00, w_Tens_Hour}),
         .i_Data_Dig2                    (w_Units_Hour),
-        .i_Data_Dig3                    (w_Tens_Min),
+        .i_Data_Dig3                    ({1'b0, w_Tens_Min}),
         .i_Data_Dig4                    (w_Units_Min),
 
         .o_Segments                     (o_Segments),

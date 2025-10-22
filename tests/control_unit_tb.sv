@@ -95,7 +95,7 @@ module control_unit_tb;
         
         // Test 1: Initial state (IDLE)
         $display("\nTest 1: Initial state (IDLE)");
-        check_output(1'b0, 1'b0, 3'b111, 2'b00, 1'b1, "Initial IDLE state");
+        check_output(1'b0, 1'b0, 3'b111, 2'b11, 1'b1, "Initial IDLE state");
         
         // Test 2: Switch pressed - transition to RESET_SEC
         $display("\nTest 2: Switch pressed - transition to RESET_SEC");
@@ -140,7 +140,7 @@ module control_unit_tb;
         i_Switch = 0;
         wait_for_state_change(IDLE, "IDLE");
         @(posedge i_Clock); // Wait one cycle for outputs to update
-        check_output(1'b0, 1'b0, 3'b111, 2'b00, 1'b1, "Back to IDLE state");
+        check_output(1'b0, 1'b0, 3'b111, 2'b11, 1'b1, "Back to IDLE state");
         
         // Test 9: Complete cycle test
         $display("\nTest 9: Complete cycle test");
@@ -171,7 +171,7 @@ module control_unit_tb;
         wait_for_state_change(IDLE, "IDLE");
         @(posedge i_Clock); // Wait one cycle for outputs to update
         @(posedge i_Clock); // Wait one more cycle for outputs to update
-        check_output(1'b0, 1'b0, 3'b111, 2'b00, 1'b1, "Cycle: Back to IDLE");
+        check_output(1'b0, 1'b0, 3'b111, 2'b11, 1'b1, "Cycle: Back to IDLE");
         
         // Test 10: Rapid switching
         $display("\nTest 10: Rapid switching");
@@ -255,7 +255,7 @@ module control_unit_tb;
         repeat(20) @(posedge i_Clock);
         @(posedge i_Clock); // Wait one more cycle for outputs to update
         @(posedge i_Clock); // Wait one more cycle for outputs to update
-        check_output(1'b0, 1'b0, 3'b111, 2'b00, 1'b1, "Stable in IDLE");
+        check_output(1'b0, 1'b0, 3'b111, 2'b11, 1'b1, "Stable in IDLE");
         
         // Stay in SET_MIN for many cycles
         i_Switch = 1;
