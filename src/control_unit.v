@@ -38,7 +38,7 @@ module control_unit
                 r_Counters_Enable_Increment = 1'b0;
                 r_Counters_Enable_Count     = 3'b111;
 
-                r_Display_Enable_Digits     = 2'b11;
+                r_Display_Enable_Digits     = 2'b00;
                 r_Display_Enable_Dot        = 1'b1;
 
                 if (i_Switch)
@@ -55,10 +55,7 @@ module control_unit
                 r_Display_Enable_Digits     = 2'b00;
                 r_Display_Enable_Dot        = 1'b0;
                 
-                if (i_Switch)
-                    r_Next_State = RESET_SEC;
-                else
-                    r_Next_State = SET_MIN;
+                r_Next_State = SET_MIN;
                 
             end
             SET_MIN: begin
@@ -86,9 +83,9 @@ module control_unit
                 r_Display_Enable_Dot        = 1'b0;
 
                 if (i_Switch)
-                    r_Next_State = SET_HOUR;
-                else
                     r_Next_State = IDLE;
+                else
+                    r_Next_State = SET_HOUR;
                 
             end
         endcase

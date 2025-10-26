@@ -92,6 +92,10 @@ module clock_top
         .o_Display_Enable_Dot           (w_Display_Enable_Dot)
     );
 
+    assign w_Enable_Count_Sec = w_Counters_Enable_Count[0] & w_Enable_Clock_Count_Sec;
+
+	assign w_Enable_Increment = w_Counters_Enable_Increment & w_Released_Button_Up;
+
     //--------------------CLOCK_COUNTERS--------------------//
 
     wire            w_Enable_Increment;
@@ -102,9 +106,6 @@ module clock_top
     wire    [2:0]   w_Tens_Min;
     wire    [3:0]   w_Units_Hour;
     wire    [1:0]   w_Tens_Hour;
-
-    assign w_Enable_Count_Sec = w_Counters_Enable_Count[0] & w_Enable_Clock_Count_Sec;
-    assign w_Enable_Increment = w_Counters_Enable_Increment & w_Released_Button_Up;
 
     clock_counters                      CLOCK_COUNTERS
     (
@@ -146,9 +147,9 @@ module clock_top
         .i_Enable_Digits                (w_Enable_Digits),
         .i_Enable_Dot                   (w_Enable_Dot),
 
-        .i_Data_Dig1                    ({2'b00, w_Tens_Hour}),
+        .i_Data_Dig1                    (w_Tens_Hour),
         .i_Data_Dig2                    (w_Units_Hour),
-        .i_Data_Dig3                    ({1'b0, w_Tens_Min}),
+        .i_Data_Dig3                    (w_Tens_Min),
         .i_Data_Dig4                    (w_Units_Min),
 
         .o_Segments                     (o_Segments),
