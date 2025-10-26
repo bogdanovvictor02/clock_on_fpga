@@ -1,12 +1,33 @@
 module clock_top
 (
-    input           i_Clock,
+    input           clk_50mhz,
     input           i_Button_Set,
     input           i_Button_Up,
 
     output  [7:0]   o_Segments,
     output  [3:0]   o_Digits
 );
+
+    wire clk_10mhz;
+
+    Gowin_rPLL your_instance_name(
+        .clkout(clk_10mhz), //output clkout
+        .clkin(clk_50mhz) //input clkin
+    );
+
+    // Предделитель с 10 МГц до 32768 Гц для сигнала i_Clock
+
+    reg [17:0] clk_div_counter = 18'd0; // 10_000_000 / 32_768 ≈ 305 (максимум ~18 бит)
+    reg        i_Clock = 1'b0;
+
+    always @(posedge clk_10mhz) begin
+        if (clk_div_counter >= 18'd152) begin // Делим на 153 * 2 = 306
+            clk_div_counter <= 18'd0;
+            i_Clock <= ~i_Clock;
+        end else begin
+            clk_div_counter <= clk_div_counter + 1'b1;
+        end
+    end
 
     //--------------------BUTTON_SET--------------------//
 

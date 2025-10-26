@@ -3,7 +3,7 @@
 <Project>
     <Template>FPGA</Template>
     <Version>5</Version>
-    <Device name="GW5A-25A" pn="GW5A-LV25MG121NC1/I0">gw5a25a-002</Device>
+    <Device name="GW1N-9" pn="GW1N-LV9LQ144C6/I5">gw1n9-008</Device>
     <FileList>
         <File path="src/button_debounce.v" type="file.verilog" enable="1"/>
         <File path="src/clock_counters.v" type="file.verilog" enable="1"/>
@@ -12,6 +12,7 @@
         <File path="src/control_unit.v" type="file.verilog" enable="1"/>
         <File path="src/counter.v" type="file.verilog" enable="1"/>
         <File path="src/display.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/clock_on_fpga.cst" type="file.cst" enable="1"/>
     </FileList>
 </Project>
