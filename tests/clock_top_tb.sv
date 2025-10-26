@@ -17,7 +17,7 @@ module clock_top_tb;
         forever #(CLOCK_PERIOD/2) i_Clock = ~i_Clock;
     end
     
-    // Instantiate the module under test
+    // Instantiate the module under test (TEST mode bypasses PLL)
     clock_top uut (
         .i_Clock(i_Clock),
         .i_Button_Set(i_Button_Set),

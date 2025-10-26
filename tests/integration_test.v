@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 
+`define TEST
+
 module integration_test;
 
     // Testbench signals

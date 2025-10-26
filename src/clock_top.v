@@ -1,6 +1,11 @@
 module clock_top
 (
     input           clk_50mhz,
+`ifndef TEST
+    // PLL mode: use clk_50mhz input
+`else
+    input           i_Clock,
+`endif
     input           i_Button_Set,
     input           i_Button_Up,
 
@@ -9,25 +14,33 @@ module clock_top
 );
 
     wire clk_10mhz;
+    wire main_clock;
 
-    Gowin_rPLL your_instance_name(
-        .clkout(clk_10mhz), //output clkout
-        .clkin(clk_50mhz) //input clkin
-    );
+    // PLL is only synthesized in normal mode (not in TEST mode)
+    `ifndef TEST
+        Gowin_rPLL your_instance_name(
+            .clkout(clk_10mhz), //output clkout
+            .clkin(clk_50mhz) //input clkin
+        );
 
-    // Предделитель с 10 МГц до 32768 Гц для сигнала i_Clock
+        // Предделитель с 10 МГц до 32768 Гц для сигнала main_clock
+        reg [17:0] clk_div_counter = 18'd0; // 10_000_000 / 32_768 ≈ 305 (максимум ~18 бит)
+        reg        clk_gen = 1'b0;
 
-    reg [17:0] clk_div_counter = 18'd0; // 10_000_000 / 32_768 ≈ 305 (максимум ~18 бит)
-    reg        i_Clock = 1'b0;
-
-    always @(posedge clk_10mhz) begin
-        if (clk_div_counter >= 18'd152) begin // Делим на 153 * 2 = 306
-            clk_div_counter <= 18'd0;
-            i_Clock <= ~i_Clock;
-        end else begin
-            clk_div_counter <= clk_div_counter + 1'b1;
+        always @(posedge clk_10mhz) begin
+            if (clk_div_counter >= 18'd152) begin // Делим на 153 * 2 = 306
+                clk_div_counter <= 18'd0;
+                clk_gen <= ~clk_gen;
+            end else begin
+                clk_div_counter <= clk_div_counter + 1'b1;
+            end
         end
-    end
+        
+        assign main_clock = clk_gen;
+    `else
+        // TEST mode: use external i_Clock
+        assign main_clock = i_Clock;
+    `endif
 
     //--------------------BUTTON_SET--------------------//
 
@@ -35,7 +48,7 @@ module clock_top
 
     button_debounce                     BUTTON_SET
     (
-        .i_Clock                        (i_Clock),
+        .i_Clock                        (main_clock),
         .i_Button                       (i_Button_Set),
 
         .o_Released_Button              (w_Released_Button_Set)
@@ -47,7 +60,7 @@ module clock_top
 
     button_debounce                     BUTTON_UP
     (
-        .i_Clock                        (i_Clock),
+        .i_Clock                        (main_clock),
         .i_Button                       (i_Button_Up),
 
         .o_Released_Button              (w_Released_Button_Up)
@@ -62,7 +75,7 @@ module clock_top
 
     clock_master                        CLOCK_MASTER
     (
-        .i_Clock                        (i_Clock),
+        .i_Clock                        (main_clock),
 
         .o_Clock_1024Hz                 (w_Display_Clock[0]),
         .o_Clock_512Hz                  (w_Display_Clock[1]),
@@ -81,8 +94,8 @@ module clock_top
 
     control_unit                        CONTROL_UNIT
     (
-        .i_Clock                        (i_Clock),
-        .i_Switch                       (w_Released_Button_Set),
+        .i_Clock                        (main_clock),
+        .i_Switch                        (w_Released_Button_Set),
 
         .o_Counters_Reset               (w_Counters_Reset_Sec),
         .o_Counters_Enable_Increment    (w_Counters_Enable_Increment),
@@ -109,7 +122,7 @@ module clock_top
 
     clock_counters                      CLOCK_COUNTERS
     (
-        .i_Clock                        (i_Clock),
+        .i_Clock                        (main_clock),
 
         .i_Reset_Sec                    (w_Counters_Reset_Sec),
         .i_Enable_Increment             (w_Enable_Increment),

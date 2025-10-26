@@ -8,7 +8,7 @@ VIEWER = gtkwave
 SRC_DIR = src
 TEST_DIR = tests
 
-# Source files
+# Source files (excluding PLL which is only needed for FPGA synthesis)
 SRC_SOURCES = $(SRC_DIR)/button_debounce.v \
               $(SRC_DIR)/counter.v \
               $(SRC_DIR)/clock_master.v \
@@ -101,13 +101,21 @@ test-top: $(TEST_DIR)/clock_top_tb.vvp
 test-integration: $(TEST_DIR)/integration_test.vvp
 	vvp $(TEST_DIR)/integration_test.vvp
 
-# Compile Verilog testbenches
-$(VVP_FILES_V): %.vvp: %.v $(SRC_SOURCES)
-	$(SIMULATOR) -o $@ $< $(SRC_SOURCES)
+# Compile Verilog testbenches excluding integration_test
+$(filter-out $(TEST_DIR)/integration_test.vvp,$(VVP_FILES_V)): %.vvp: %.v $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+	$(SIMULATOR) -o $@ $< $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
 
-# Compile SystemVerilog testbenches
-$(VVP_FILES_SV): %.vvp: %.sv $(SRC_SOURCES)
-	$(SIMULATOR) -g2012 -o $@ $< $(SRC_SOURCES)
+# Special rule for integration_test (needs clock_top but bypasses PLL)
+$(TEST_DIR)/integration_test.vvp: $(TEST_DIR)/integration_test.v $(SRC_DIR)/clock_top.v $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+	$(SIMULATOR) -DTEST -o $@ $< $(SRC_DIR)/clock_top.v $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+
+# Compile SystemVerilog testbenches (excluding clock_top which needs special handling)
+$(filter-out $(TEST_DIR)/clock_top_tb.vvp,$(VVP_FILES_SV)): %.vvp: %.sv $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+	$(SIMULATOR) -g2012 -o $@ $< $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+
+# Special rule for clock_top_tb (bypasses PLL)
+$(TEST_DIR)/clock_top_tb.vvp: $(TEST_DIR)/clock_top_tb.sv $(SRC_DIR)/clock_top.v $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
+	$(SIMULATOR) -g2012 -DTEST -o $@ $< $(SRC_DIR)/clock_top.v $(filter-out $(SRC_DIR)/clock_top.v,$(SRC_SOURCES))
 
 # Run simulation and generate VCD
 wave-all: $(VVP_FILES)
